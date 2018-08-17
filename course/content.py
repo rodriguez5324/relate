@@ -110,6 +110,8 @@ class CourseDesc(StaticPageDesc):
 class FlowSessionStartRuleDesc(Struct):
     if_after = None  # type: Date_ish
     if_before = None  # type: Date_ish
+    if_after_relative = None # type: Date_ish
+    if_before_relative = None # type: Date_ish
     if_has_role = None  # type: list
     if_has_participation_tags_any = None  # type: List[Text]
     if_has_participation_tags_all = None  # type: List[Text]
@@ -130,6 +132,8 @@ class FlowSessionAccessRuleDesc(Struct):
     permissions = None  # type: list
     if_after = None  # type: Date_ish
     if_before = None  # type: Date_ish
+    if_after_relative = None # type: Date_ish
+    if_before_relative = None # type: Date_ish
     if_started_before = None  # type: Date_ish
     if_has_role = None  # type: List[Text]
     if_has_participation_tags_any = None  # type: List[Text]
