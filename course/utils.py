@@ -175,6 +175,25 @@ def _eval_generic_conditions(
         if not (now_datetime >= ds):
             return False
 
+    if hasattr(rule, "if_before_relative"):
+        if participation == None:
+            return False
+        t = participation.enroll_time;
+        beginString = '{}-{:02}-{:02} @ {:02}:{:02}'.format(t.year, t.month, t.day, t.hour, t.minute)
+        ds = parse_date_spec(course, '{} {}'.format(beginString, rule.if_before_relative))
+        if not (now_datetime <= ds):
+            return False
+
+    if hasattr(rule, "if_after_relative"):
+        if participation == None:
+            return False
+        t = participation.enroll_time;
+        beginString = "{}-{:02}-{:02} @ {:02}:{:02}".format(t.year, t.month, t.day, t.hour, t.minute)
+        ds = parse_date_spec(course, "{} {}".format(beginString, rule.if_after_relative))
+        if not (now_datetime >= ds):
+            return False
+
+
     if hasattr(rule, "if_has_role"):
         from course.enrollment import get_participation_role_identifiers
         roles = get_participation_role_identifiers(course, participation)

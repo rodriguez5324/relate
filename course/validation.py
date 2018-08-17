@@ -592,6 +592,8 @@ def validate_session_start_rule(vctx, location, nrule, tags):
             allowed_attrs=[
                 ("if_after", datespec_types),
                 ("if_before", datespec_types),
+                ("if_after_relative", datespec_types),
+                ("if_before_relative", datespec_types),
                 ("if_has_role", list),
                 ("if_has_participation_tags_any", list),
                 ("if_has_participation_tags_all", list),
@@ -613,6 +615,10 @@ def validate_session_start_rule(vctx, location, nrule, tags):
         vctx.encounter_datespec(location, nrule.if_after)
     if hasattr(nrule, "if_before"):
         vctx.encounter_datespec(location, nrule.if_before)
+    if hasattr(nrule, "if_after_relative"):
+        vctx.encounter_datespec(location, "2018-01-01 @ 01:01 {}".format(nrule.if_after_relative))
+    if hasattr(nrule, "if_before_relative"):
+        vctx.encounter_datespec(location, "2018-01-01 @ 01:01 {}".format(nrule.if_before_relative))
     if hasattr(nrule, "if_has_role"):
         for j, role in enumerate(nrule.if_has_role):
             validate_role(
