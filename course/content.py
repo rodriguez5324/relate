@@ -1278,7 +1278,7 @@ def compute_chunk_weight_and_shown(
                 continue
 
         if hasattr(rule, "if_after_relative"):
-            if not participation:
+            if participation is None:
                 continue
             t = participation.enroll_time
             prefix = '{}-{:02}-{:02} @ {:02}:{:02}'.format(t.year, t.month, t.day, t.hour, t.minute)
@@ -1287,7 +1287,7 @@ def compute_chunk_weight_and_shown(
                 continue
 
         if hasattr(rule, "if_before_relative"):
-            if not participation:
+            if participation is None:
                 continue
             t = participation.enroll_time
             prefix = '{}-{:02}-{:02} @ {:02}:{:02}'.format(t.year, t.month, t.day, t.hour, t.minute)

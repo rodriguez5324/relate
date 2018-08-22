@@ -176,7 +176,7 @@ def _eval_generic_conditions(
             return False
 
     if hasattr(rule, "if_before_relative"):
-        if participation == None:
+        if participation is None:
             return False
         t = participation.enroll_time;
         beginString = '{}-{:02}-{:02} @ {:02}:{:02}'.format(t.year, t.month, t.day, t.hour, t.minute)
@@ -185,7 +185,7 @@ def _eval_generic_conditions(
             return False
 
     if hasattr(rule, "if_after_relative"):
-        if participation == None:
+        if participation is None:
             return False
         t = participation.enroll_time;
         beginString = "{}-{:02}-{:02} @ {:02}:{:02}".format(t.year, t.month, t.day, t.hour, t.minute)
