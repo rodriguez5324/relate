@@ -78,6 +78,8 @@ class ChunkRulesDesc(Struct):
     if_has_role = None  # type: List[Text]
     if_before = None  # type: Datespec
     if_after = None  # type: Datespec
+    if_before_relative = None # type: Datespec
+    if_after_relative = None # type: Datespec
     if_in_facility = None  # type: Text
     if_has_participation_tags_any = None  # type: List[Text]
     if_has_participation_tags_all = None  # type: List[Text]
@@ -1254,6 +1256,7 @@ def compute_chunk_weight_and_shown(
         roles,  # type: List[Text]
         now_datetime,  # type: datetime.datetime
         facilities,  # type: FrozenSet[Text]
+        participation, # type: Participation
         ):
     # type: (...) -> Tuple[float, bool]
     if not hasattr(chunk, "rules"):
@@ -1271,6 +1274,24 @@ def compute_chunk_weight_and_shown(
 
         if hasattr(rule, "if_before"):
             end_date = parse_date_spec(course, rule.if_before)
+            if end_date < now_datetime:
+                continue
+
+        if hasattr(rule, "if_after_relative"):
+            if not participation:
+                continue
+            t = participation.enroll_time
+            prefix = '{}-{:02}-{:02} @ {:02}:{:02}'.format(t.year, t.month, t.day, t.hour, t.minute)
+            start_date = parse_date_spec(course, "{} {}".format(prefix, rule.if_after_relative))
+            if now_datetime < start_date:
+                continue
+
+        if hasattr(rule, "if_before_relative"):
+            if not participation:
+                continue
+            t = participation.enroll_time
+            prefix = '{}-{:02}-{:02} @ {:02}:{:02}'.format(t.year, t.month, t.day, t.hour, t.minute)
+            end_date = parse_date_spec(course, '{} {}'.format(prefix, rule.if_before_relative))
             if end_date < now_datetime:
                 continue
 
@@ -1313,13 +1334,14 @@ def get_processed_page_chunks(
         roles,  # type: List[Text]
         now_datetime,  # type: datetime.datetime
         facilities,  # type: FrozenSet[Text]
+        participation, # type: Participation
         ):
     # type: (...) -> List[ChunkDesc]
     for chunk in page_desc.chunks:
         chunk.weight, chunk.shown = \
                 compute_chunk_weight_and_shown(
                         course, chunk, roles, now_datetime,
-                        facilities)
+                        facilities, participation)
         chunk.html_content = markup_to_html(course, repo, commit_sha, chunk.content)
         if not hasattr(chunk, "title"):
             chunk.title = extract_title_from_markup(chunk.content)

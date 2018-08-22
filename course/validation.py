@@ -310,6 +310,8 @@ def validate_chunk_rule(vctx, location, chunk_rule):
             allowed_attrs=[
                 ("if_after", datespec_types),
                 ("if_before", datespec_types),
+                ("if_after_relative", datespec_types),
+                ("if_before_relative", datespec_types),
                 ("if_in_facility", str),
                 ("if_has_role", list),
                 ("if_has_participation_tags_any", list),
@@ -327,6 +329,12 @@ def validate_chunk_rule(vctx, location, chunk_rule):
 
     if hasattr(chunk_rule, "if_before"):
         vctx.encounter_datespec(location, chunk_rule.if_before)
+
+    if hasattr(chunk_rule, "if_after_relative"):
+        vctx.encounter_datespec(location, "2018-01-01 @ 01:01 {}".format(chunk_rule.if_after_relative))
+
+    if hasattr(chunk_rule, "if_before_relative"):
+        vctx.encounter_datespec(location, "2018-01-01 @ 01:01 {}".format(chunk_rule.if_before_relative))
 
     if hasattr(chunk_rule, "if_has_role"):
         for role in chunk_rule.if_has_role:
@@ -692,6 +700,8 @@ def validate_session_access_rule(vctx, location, arule, tags):
             allowed_attrs=[
                 ("if_after", datespec_types),
                 ("if_before", datespec_types),
+                ("if_after_relative", datespec_types),
+                ("if_before_relative", datespec_types),
                 ("if_started_before", datespec_types),
                 ("if_has_role", list),
                 ("if_has_participation_tags_any", list),
@@ -711,6 +721,10 @@ def validate_session_access_rule(vctx, location, arule, tags):
         vctx.encounter_datespec(location, arule.if_after)
     if hasattr(arule, "if_before"):
         vctx.encounter_datespec(location, arule.if_before)
+    if hasattr(arule, "if_after_relative"):
+        vctx.encounter_datespec(location, "2018-01-01 @ 01:01 {}".format(arule.if_after_relative))
+    if hasattr(arule, "if_before_relative"):
+        vctx.encounter_datespec(location, "2018-01-01 @ 01:01 {}".format(arule.if_before_relative))
     if hasattr(arule, "if_completed_before"):
         vctx.encounter_datespec(location, arule.if_completed_before)
 

@@ -170,7 +170,7 @@ def course_page(pctx):
     chunks = get_processed_page_chunks(
             pctx.course, pctx.repo, pctx.course_commit_sha, page_desc,
             pctx.role_identifiers(), get_now_or_fake_time(pctx.request),
-            facilities=pctx.request.relate_facilities)
+            facilities=pctx.request.relate_facilities, patricipation=pctx.participation)
 
     show_enroll_button = (
             pctx.course.accepts_enrollment
