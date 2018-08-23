@@ -419,7 +419,7 @@ def send_enrollment_decision(participation, approved, request=None):
                 [participation.user.email],
                 **email_kwargs)
         msg.bcc = [course.notify_email]
-        #msg.send()
+        msg.send()
 
 
 def approve_enrollment(modeladmin, request, queryset):
