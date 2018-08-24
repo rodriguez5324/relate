@@ -703,6 +703,7 @@ def validate_session_access_rule(vctx, location, arule, tags):
                 ("if_after_relative", datespec_types),
                 ("if_before_relative", datespec_types),
                 ("if_started_before", datespec_types),
+                ("if_started_before_relative", datespec_types),
                 ("if_has_role", list),
                 ("if_has_participation_tags_any", list),
                 ("if_has_participation_tags_all", list),
@@ -710,6 +711,7 @@ def validate_session_access_rule(vctx, location, arule, tags):
                 ("if_has_tag", (six.string_types, type(None))),
                 ("if_in_progress", bool),
                 ("if_completed_before", datespec_types),
+                ("if_completed_before_relative", datespec_types),
                 ("if_expiration_mode", str),
                 ("if_session_duration_shorter_than_minutes", (int, float)),
                 ("if_signed_in_with_matching_exam_ticket", bool),
@@ -727,6 +729,8 @@ def validate_session_access_rule(vctx, location, arule, tags):
         vctx.encounter_datespec(location, "2018-01-01 @ 01:01 {}".format(arule.if_before_relative))
     if hasattr(arule, "if_completed_before"):
         vctx.encounter_datespec(location, arule.if_completed_before)
+    if hasattr(arule, "if_completed_before_relative"):
+        vctx.encounter_datespec(location, "2018-01-01 @ 01:01 {}".format(arule.if_completed_before_relative))
 
     if hasattr(arule, "if_has_role"):
         for j, role in enumerate(arule.if_has_role):
@@ -809,7 +813,9 @@ def validate_session_grading_rule(
                 ("if_has_participation_tags_all", list),
                 ("if_has_tag", (six.string_types, type(None))),
                 ("if_started_before", datespec_types),
+                ("if_started_before_relative", datespec_types),
                 ("if_completed_before", datespec_types),
+                ("if_completed_before_relative", datespec_types),
 
                 ("credit_percent", (int, float)),
                 ("use_last_activity_as_completion_time", bool),
@@ -850,9 +856,15 @@ def validate_session_grading_rule(
     if hasattr(grule, "if_started_before"):
         vctx.encounter_datespec(location, grule.if_started_before)
         has_conditionals = True
+    if hasattr(grule, "if_started_before"):
+        vctx.encounter_datespec(location, "2018-01-01 @ 01:01 {}".format(grule.if_started_before_relative))
+        has_conditionals = True
 
     if hasattr(grule, "if_completed_before"):
         vctx.encounter_datespec(location, grule.if_completed_before)
+        has_conditionals = True
+    if hasattr(grule, "if_completed_before_relative"):
+        vctx.encounter_datespec(location, "2018-01-01 @ 01:01 {}".format(grule.if_completed_before_relative))
         has_conditionals = True
 
     if hasattr(grule, "if_has_role"):

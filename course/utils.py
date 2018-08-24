@@ -226,6 +226,15 @@ def _eval_generic_session_conditions(
         if not session.start_time < ds:
             return False
 
+    if hasattr(rule, "if_started_before_relative"):
+        if session.participation is None:
+            return False
+        t = session.participation.enroll_time
+        beginString = "{}-{:02}-{:02} @ {:02}:{:02}".format(t.year, t.month, t.day, t.hour, t.minute)
+        ds = parse_date_spec(session.course, "{} {}".format(beginString, rule.if_started_before_relative))
+        if not session.start_time < ds:
+            return False
+
     return True
 
 
@@ -516,8 +525,13 @@ def get_session_grading_rule(
         if not _eval_participation_tags_conditions(rule, session.participation):
             continue
 
-        if hasattr(rule, "if_completed_before"):
-            ds = parse_date_spec(session.course, rule.if_completed_before)
+        if hasattr(rule, "if_completed_before") or hasattr(rule, "if_completed_before_relative"):
+            if hasattr(rule, "if_completed_before_relative"):
+                t = session.participation.enroll_time;
+                beginString = '{}-{:02}-{:02} @ {:02}:{:02}'.format(t.year, t.month, t.day, t.hour, t.minute)
+                ds = parse_date_spec(session.course, '{} {}'.format(beginString, rule.if_completed_before_relative))
+            else:
+                ds = parse_date_spec(session.course, rule.if_completed_before)
 
             use_last_activity_as_completion_time = False
             if hasattr(rule, "use_last_activity_as_completion_time"):
