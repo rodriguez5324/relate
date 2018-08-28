@@ -232,7 +232,7 @@ def static_page(pctx, page_path):
     chunks = get_processed_page_chunks(
             pctx.course, pctx.repo, pctx.course_commit_sha, page_desc,
             pctx.role_identifiers(), get_now_or_fake_time(pctx.request),
-            facilities=pctx.request.relate_facilities)
+            facilities=pctx.request.relate_facilities, participation=pctx.participation)
 
     return render_course_page(pctx, "course/static-page.html", {
         "chunks": chunks,
