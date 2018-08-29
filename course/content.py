@@ -1280,7 +1280,7 @@ def compute_chunk_weight_and_shown(
         if hasattr(rule, "if_after_relative"):
             if participation is None:
                 continue
-            t = participation.enroll_time
+            t = participation.enroll_time.astimezone()
             prefix = '{}-{:02}-{:02} @ {:02}:{:02}'.format(t.year, t.month, t.day, t.hour, t.minute)
             start_date = parse_date_spec(course, "{} {}".format(prefix, rule.if_after_relative))
             if now_datetime < start_date:
@@ -1289,7 +1289,7 @@ def compute_chunk_weight_and_shown(
         if hasattr(rule, "if_before_relative"):
             if participation is None:
                 continue
-            t = participation.enroll_time
+            t = participation.enroll_time.astimezone()
             prefix = '{}-{:02}-{:02} @ {:02}:{:02}'.format(t.year, t.month, t.day, t.hour, t.minute)
             end_date = parse_date_spec(course, '{} {}'.format(prefix, rule.if_before_relative))
             if end_date < now_datetime:
