@@ -611,6 +611,7 @@ def validate_session_start_rule(vctx, location, nrule, tags):
                 ("if_has_fewer_sessions_than", int),
                 ("if_has_fewer_tagged_sessions_than", int),
                 ("if_signed_in_with_matching_exam_ticket", bool),
+                ("if_grade_in_flow_more_than", str),
                 ("tag_session", (six.string_types, type(None))),
                 ("may_start_new_session", bool),
                 ("may_list_existing_sessions", bool),
@@ -649,6 +650,35 @@ def validate_session_start_rule(vctx, location, nrule, tags):
         if nrule.if_has_session_tagged is not None:
             validate_identifier(vctx, "%s: if_has_session_tagged" % location,
                     nrule.if_has_session_tagged)
+    if hasattr(nrule, "if_grade_in_flow_more_than"):
+        rexp = re.compile(r"^(\w+)\s+(\d+)$")
+        match = rexp.match(nrule.if_grade_in_flow_more_than)
+        if match is None:
+             raise ValidationError(
+                    string_concat(
+                        "%(location)s: ",
+                        "invalid usage '%(str)s'.",
+                        "You must give 2 args: flow_id and number (0<=n<=100)")
+                    % {'location': location, 'str': nrule.if_grade_in_flow_more_than})
+        else:
+            if vctx.course is not None:
+                from course.models import GradingOpportunity
+                opps = GradingOpportunity.objects.filter(course=vctx.course, flow_id=match.group(1))
+                if len(opps) == 0:
+                    raise ValidationError(
+                        string_concat(
+                            "%(location)s: ",
+                            "invalid flow_id: '%(id)s'.",
+                            "Can't find any opportunities with these flow")
+                        % {'location': location, 'id': match.group(1)})
+            points = int(match.group(2))
+            if not (0 <= points <= 100):
+                raise ValidationError(
+                    string_concat(
+                        "%(location)s: ",
+                        "invalid point amount: '%(points)s.'",
+                        "type some number between 0 and 100")
+                    % {'location': location, 'points': str(points)})
 
     if not hasattr(nrule, "may_start_new_session"):
         vctx.add_warning(
