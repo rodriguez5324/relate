@@ -83,6 +83,7 @@ class ChunkRulesDesc(Struct):
     if_in_facility = None  # type: Text
     if_has_participation_tags_any = None  # type: List[Text]
     if_has_participation_tags_all = None  # type: List[Text]
+    if_grade_in_flow = None # type: Text
     roles = None  # type: List[Text]
     start = None  # type: Datespec
     end = None  # type: Datespec
@@ -123,6 +124,7 @@ class FlowSessionStartRuleDesc(Struct):
     if_has_fewer_sessions_than = None  # type: int
     if_has_fewer_tagged_sessions_than = None  # type: int
     if_signed_in_with_matching_exam_ticket = None  # type: bool
+    if_grade_in_flow = None # type: Text
     tag_session = None  # type: Optional[Text]
     may_start_new_session = None  # type: bool
     may_list_existing_sessions = None  # type: bool
@@ -1297,6 +1299,30 @@ def compute_chunk_weight_and_shown(
 
         if hasattr(rule, "if_in_facility"):
             if rule.if_in_facility not in facilities:
+                continue
+
+        if hasattr(rule, "if_grade_in_flow"):
+            import re
+            rexp = re.compile(r"^(\w+)\s*(<|>|<=|>=|==|!=)\s*(\d+\.?\d*)\s*(%?)$")
+            match = rexp.match(rule.if_grade_in_flow)
+            flow_id = match.group(1)
+            ops={'<':lambda a,b: a<b, '>':lambda a,b: a>b, '<=':lambda a,b: a<=b, '>=':lambda a,b: a>=b, '==':lambda a,b: a==b, '!=':lambda a,b: a!=b}
+            op = ops[match.group(2)]
+            points = float(match.group(3))
+            percentage = match.group(4) == '%'
+
+            from course.models import GradingOpportunity
+            opp = GradingOpportunity.objects.filter(course=course,flow_id=flow_id)[0] #check it
+
+            from course.grades import get_single_grade_changes_and_state_machine
+            grade_changes, state_machine = get_single_grade_changes_and_state_machine(opp, participation)
+
+            if state_machine.percentage() is None:
+                continue
+
+            final_state = list(filter(lambda g:g.percentage()==state_machine.percentage(), grade_changes))[0]
+            state_points = final_state.percentage() if percentage else final_state.points
+            if not op(state_points, points):
                 continue
 
         # {{{ deprecated

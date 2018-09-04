@@ -207,12 +207,15 @@ def _eval_generic_conditions(
         if login_exam_ticket.exam.flow_id != flow_id:
             return False
 
-    if hasattr(rule, "if_grade_in_flow_more_than"):
+    if hasattr(rule, "if_grade_in_flow"):
         import re
-        rexp = re.compile(r"^(\w+)\s+(\d+)$")
-        match = rexp.match(rule.if_grade_in_flow_more_than)
+        rexp = re.compile(r"^(\w+)\s*(<|>|<=|>=|==|!=)\s*(\d+\.?\d*)\s*(%?)$")
+        match = rexp.match(rule.if_grade_in_flow)
         flow_id = match.group(1)
-        points = int(match.group(2))
+        ops={'<':lambda a,b: a<b, '>':lambda a,b: a>b, '<=':lambda a,b: a<=b, '>=':lambda a,b: a>=b, '==':lambda a,b: a==b, '!=':lambda a,b: a!=b}
+        op = ops[match.group(2)]
+        points = float(match.group(3))
+        percentage = match.group(4) == '%'
 
         from course.models import GradingOpportunity
         opp = GradingOpportunity.objects.filter(course=course,flow_id=flow_id)[0] #check it
@@ -220,8 +223,12 @@ def _eval_generic_conditions(
         from course.grades import get_single_grade_changes_and_state_machine
         grade_changes, state_machine = get_single_grade_changes_and_state_machine(opp, participation)
 
-        grade_percentage = state_machine.percentage()
-        if grade_percentage is None or not (grade_percentage > points):
+        if state_machine.percentage() is None:
+            return False
+
+        final_state = list(filter(lambda g:g.percentage()==state_machine.percentage(), grade_changes))[0]
+        state_points = final_state.percentage() if percentage else final_state.points
+        if not op(state_points, points):
             return False
 
     return True
